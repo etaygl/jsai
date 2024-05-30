@@ -1,0 +1,86 @@
+<html>
+<head>
+    <title>Test Sum</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col justify-center">
+    <div class="mx-auto w-full max-w-xl">
+        <h1 class="text-center text-3xl mb-4">Open AI summarize</h1>
+        <div class="mb-4">
+            <label for="toneSelect" class="block mb-2">Choose a tone:</label>
+            <select id="toneSelect" name="toneSelect" class="bg-gray-50">
+              <option value="neutral" selected>Neutral</option>
+              <option value="formal">Formal</option>
+              <option value="like a pirate">Like a pirate</option>
+            </select>
+          </div>
+        <div class="mb-4 text-center">
+            <label class="inline-flex items-center">
+                <input type="radio" class="form-radio" name="actionType" value="summarize" checked />
+                <span class="ml-2">Summarize</span>
+                </label>
+                <label class="inline-flex items-center ml-6">
+                <input type="radio" class="form-radio" name="actionType" value="createArticle" />
+                <span class="ml-2">Create Blog Article</span>
+            </label>
+        </div>
+
+        <form action="/summarize" method="POST" class="bg-white p-6 rounded shadow-md">
+            <div class="mb-4">
+                <label for="url" class="block text-sm font-bold mb-2">Enter URL:</label>
+                    <input type="text" id="url" name="url" class="w-full p-2 border rounded" />
+            </div>
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                Summarize
+            </button>
+        </form>
+        <div id="result" class="mt-6 p-4 bg-gray-200 rounded hidden max-h-96 overflow-y-auto">
+            <div id="loading" class="mt-2 text-center hidden">
+             ⏳ Summarizing ...
+            </div>
+        </div>
+    </div>
+    <script>
+        document.querySelector('form').addEventListener('submit', async (e) => {
+           // console.log('submit');
+		    e.preventDefault()
+            const url = document.querySelector('#url').value
+            const resultDiv = document.querySelector('#result')
+            const loadingDiv = document.querySelector('#loading')
+            loadingDiv.classList.remove('hidden')
+            resultDiv.classList.remove('hidden')
+		
+            const actionType = document.querySelector('input[name="actionType"]:checked').value
+            console.log('tone');
+            const tone = document.querySelector('#toneSelect').value;
+            console.log(tone);
+
+            let endpoint = '/summarize'
+
+            if (actionType === 'createArticle') {
+                endpoint = '/createArticle'
+            }
+	
+           try {
+                //console.log(`try` + tone);
+                // const response = await fetch('/summarize', {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url ,tone}),
+                })
+                const summarizedContent = await response.text();
+                resultDiv.textContent = summarizedContent;
+            } catch (error) {
+                resultDiv.textContent = 'Error summarizing content. Please try again.'
+                } finally {
+                    resultDiv.classList.remove('hidden')
+                    loadingDiv.classList.add('hidden')
+            
+            }
+        });
+	</script>
+</body>
+</html>

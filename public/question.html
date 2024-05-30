@@ -1,0 +1,63 @@
+<html>
+<head>
+    <title>Ask AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col justify-center">
+    <div class="mx-auto w-full max-w-xl">
+        <h1 class="text-center text-3xl mb-4">Ask AI</h1>
+        
+        <form action="/summarize" method="POST" class="bg-white p-6 rounded shadow-md">
+            <div class="mb-4">
+                <label for="url" class="block text-sm font-bold mb-2">Enter URL:</label>
+                    <input type="text" id="url" name="url" class="w-full p-2 border rounded" />
+            </div>
+            <div class="mb-4">
+                <label for="question" class="block text-sm font-bold mb-2">Enter Question:</label>
+                    <textarea type="text" id="question" name="question" class="w-full p-2 border rounded"></textarea>
+                </div>
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                Summarize
+            </button>
+        </form>
+        <div id="result" class="mt-6 p-4 bg-gray-200 rounded hidden max-h-96 overflow-y-auto">
+            <div id="loading" class="mt-2 text-center hidden">
+             ⏳ Summarizing ...
+            </div>
+        </div>
+    </div>
+    <script>
+        document.querySelector('form').addEventListener('submit', async (e) => {
+           // console.log('submit');
+		    e.preventDefault()
+            const url = document.querySelector('#url').value
+            const question = document.querySelector('#question').value
+            const resultDiv = document.querySelector('#result')
+            const loadingDiv = document.querySelector('#loading')
+            loadingDiv.classList.remove('hidden')
+            resultDiv.classList.remove('hidden')
+		
+            let endpoint = '/answerQuestion'
+	
+            try {
+                //console.log(`try` + tone)
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url ,question}),
+                })
+                const answer = await response.text();
+                resultDiv.textContent = answer;
+            } catch (error) {
+                resultDiv.textContent = 'Error answering question. Please try again.'
+                } finally {
+                    resultDiv.classList.remove('hidden')
+                    loadingDiv.classList.add('hidden')
+            
+            }
+        });
+	</script>
+</body>
+</html>
